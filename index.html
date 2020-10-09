@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Captcha da Galera</title>
+    <style>
+      label {
+        display: block;
+      }
+
+      input {
+        margin-bottom: 5px;
+      }
+
+      button {
+        display: block;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Captcha Dojo</h1>
+    <div
+      id="recaptcha"
+      class="g-recaptcha"
+      data-sitekey="6Le5VdUZAAAAAC2gDar2EH1aTpuIldoo1DSiY926"
+      data-callback="captchaCallback"
+      data-size="invisible"
+    ></div>
+    <h2>Login</h2>
+    <label for="email">E-mail</label>
+    <input id="email" type="text" name="Password" />
+    <label for="password">Password</label>
+    <input id="password" type="text" name="Email" />
+    <button id="renderCaptchaButton" onclick="onClickRenderCaptcha()">
+      Login
+    </button>
+
+    <script type="text/javascript">
+      window.onload = function () {
+        grecaptcha.render(
+          "recaptcha",
+          "6Le5VdUZAAAAAC2gDar2EH1aTpuIldoo1DSiY926"
+        );
+      };
+
+      const validationCaptchaBody = {
+        secret: "6Le5VdUZAAAAAIZnz6c3_rLANJFM0KwXDjOq-vkS"
+      };
+
+      function onClickRenderCaptcha() {
+        console.log("onClickRenderCaptcha clicked");
+        document.querySelector("#renderCaptchaButton").style.display = "none";
+        grecaptcha.reset();
+        if (!document.querySelector(".grecaptcha-badge")) {
+          return;
+        }
+
+        grecaptcha.execute();
+      }
+
+      function captchaCallback(token) {
+        console.log("captchaCallback called");
+        console.log("api called");
+        console.log("token after captcha validation => ", token);
+        validationCaptchaBody.response = token;
+        setTimeout(function () {
+          console.log("Fake api response after 1500 ms");
+          document.querySelector("#renderCaptchaButton").style.display =
+            "block";
+          validateTokenCaptcha();
+        }, 1500);
+      }
+
+      function validateTokenCaptcha() {
+        $.ajax({
+          type: "POST",
+          url:
+            "https://www.google.com/recaptcha/api/siteverify?" +
+            "secret=" +
+            validationCaptchaBody.secret +
+            "&response=" +
+            validationCaptchaBody.response,
+          success: function (data) {
+            console.log("success return data => ", data);
+          },
+          error: function (err) {
+            console.log("error return err => ", err);
+          }
+        });
+      }
+    </script>
+
+    <script
+      src="https://www.google.com/recaptcha/api.js?&render=explicit"
+      async
+      defer
+    ></script>
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
